@@ -10,3 +10,5 @@ Usage example [here](src/it/simple-it/pom.xml)
 TODO:
 
 Add some examples
+
+http://central.sonatype.org/pages/ossrh-guide.html

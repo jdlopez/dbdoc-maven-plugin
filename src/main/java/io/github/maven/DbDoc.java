@@ -1,6 +1,7 @@
 package io.github.maven;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -25,9 +26,15 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Goal which creates dbdoc files
@@ -54,21 +61,29 @@ public class DbDoc extends AbstractMojo
     private boolean overwriteSource;
     @Parameter( property = "schemas", required = false )
     private String[] schemas;
+    @Parameter( property = "exclusions", required = false )
+    private List<String> exclusions;
     @Parameter( property = "documentationTemplate", required = false )
     private File documentationTemplate;
     @Parameter( property = "outputDocFile", required = false )
     private File outputDocFile = null;
+    @Parameter( property = "query", required = false )
+    private String query = null;
 
     public void execute() throws MojoExecutionException {
         ObjectMapper om = new ObjectMapper();
+        // ignore unknown properties
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         DatabaseDoc documentation = null;
         try {
+            // //////////////////////////
             // read source
             if (sourceFile != null && sourceFile.exists()) {
                 documentation = om.readValue(sourceFile, DatabaseDoc.class);
             } else {
                 documentation = new DatabaseDoc();
             } // endif source
+            // //////////////////////////
             // getting connection
             getLog().info("Getting jdbc connection");
             //DriverManager.registerDriver();
@@ -79,16 +94,20 @@ public class DbDoc extends AbstractMojo
                 // get catalog?
                 documentation.setName(dbMetadata.getDatabaseProductName());
             }
+            // //////////////////////////
+            // Get metadata
+            getLog().info("Getting database metadata");
             if (schemas != null && schemas.length > 1) {
                 for (String schema : schemas)
                     buildSchemaDocumentation(dbMetadata, documentation, schema);
             } else {
                 buildSchemaDocumentation(dbMetadata, documentation,null);
             } // endif schemas
+            // //////////////////////////
             // write source
             File outSourceFile;
             if (overwriteSource) {
-                getLog().info("Overwriting source");
+                getLog().info("Overwriting source with new meta-data");
                 outSourceFile = sourceFile;
             } else {
                 outSourceFile = new File(outputDirectory, "source-tables.json");
@@ -96,8 +115,16 @@ public class DbDoc extends AbstractMojo
             // keeps nulls so its easy to fulfill doc
             //om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             om.writerWithDefaultPrettyPrinter().writeValue(outSourceFile, documentation);
+            // //////////////////////////
+            // Executing extra-query
+            if (query != null) {
+                getLog().info("Executing extra sql query");
+                documentation.setQueryResult(executeSelect(connection, query));
+            }
 
+            // //////////////////////////
             // generate doc
+            getLog().info("Generating documentation file");
             Reader templateReader = null;
             if (documentationTemplate != null)
                 templateReader = new FileReader(documentationTemplate);
@@ -108,6 +135,7 @@ public class DbDoc extends AbstractMojo
             if (outputDocFile == null)
                 outputDocFile = new File(outputDirectory, "database.html");
             mustache.execute(new FileWriter(outputDocFile), documentation).flush();
+            getLog().info("Done");
 
         } catch (IOException e) {
             throw new MojoExecutionException("Reading source file: " + sourceFile, e);
@@ -117,45 +145,76 @@ public class DbDoc extends AbstractMojo
         }
     }
 
+    private List<Map<String, Object>> executeSelect(Connection connection, String query) throws SQLException {
+        if (connection != null) {
+            LinkedList<Map<String, Object>> ret = new LinkedList<Map<String, Object>>();
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            List<String> columnNames = null;
+            while (rs.next()) {
+                if (columnNames == null) { // read columnnames
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    columnNames = new ArrayList<String>(rsmd.getColumnCount());
+                    for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                        columnNames.add(rsmd.getColumnName(i));
+                    } // endfor cols
+                } // endif colnames
+                HashMap<String, Object> row = new HashMap<String, Object>(columnNames.size());
+                for (String colName: columnNames) {
+                    row.put(colName, rs.getObject(colName));
+                } // end for columns
+                ret.add(row);
+            } // end rs.next
+            rs.close();
+            st.close();
+            return ret;
+        } else
+            return null;
+    }
+
     private void buildSchemaDocumentation(DatabaseMetaData dbMetadata, DatabaseDoc documentation, String schemaName) throws SQLException {
         ResultSet rsTables = dbMetadata.getTables(null, schemaName, null, new String[]{"TABLE"});
         while (rsTables.next()) {
             String tableName = rsTables.getString("TABLE_NAME");
-            TableDoc tbl = null;
-            // find first if exists:
-            if (documentation.getTables() != null) {
-                for (TableDoc t: documentation.getTables()) {
-                    if (t.getName().equalsIgnoreCase(tableName)) {
-                        tbl = t;
-                        break;
-                    }
-                } // end for
-            } // endif tables exists
-            if (tbl == null) {
-                tbl = new TableDoc();
-                documentation.getTables().add(tbl);
-            }
-            // update jdbc values:
-            tbl.setName(tableName);
-            tbl.setCatalog(rsTables.getString("TABLE_CAT"));
-            tbl.setSchema(rsTables.getString("TABLE_SCHEM"));
-            tbl.setType(rsTables.getString("TABLE_TYPE"));
-            if (tbl.getDescription() == null || tbl.getDescription().trim().equals(""))
-                tbl.setDescription(rsTables.getString("REMARKS"));
-            // add columns
-            ResultSet rsColumns = dbMetadata.getColumns(tbl.getCatalog(), tbl.getSchema(), tbl.getName(), null);
-            while (rsColumns.next()) {
-                String colName = rsColumns.getString("COLUMN_NAME");
-                ColumnDoc colDoc = findColumn(tbl.getColumns(), colName);
-                colDoc.setType(rsColumns.getString("TYPE_NAME"));
-                colDoc.setSize(rsColumns.getString("COLUMN_SIZE"));
-                colDoc.setNullable( "YES".equalsIgnoreCase(rsColumns.getString("IS_NULLABLE")) );
-                colDoc.setConstraints(rsColumns.getString("COLUMN_DEF"));
-                if (colDoc.getDescription() == null)
-                    colDoc.setDescription(rsColumns.getString("REMARKS"));
+            if (exclusions == null || exclusions.isEmpty()
+                    || !exclusions.contains(tableName)) {
+                TableDoc tbl = null;
+                // find first if exists:
+                if (documentation.getTables() != null) {
+                    for (TableDoc t: documentation.getTables()) {
+                        if (t.getName().equalsIgnoreCase(tableName)) {
+                            tbl = t;
+                            break;
+                        }
+                    } // end for
+                } // endif tables exists
+                if (tbl == null) {
+                    tbl = new TableDoc();
+                    documentation.getTables().add(tbl);
+                }
+                // update jdbc values:
+                tbl.setName(tableName);
+                tbl.setCatalog(rsTables.getString("TABLE_CAT"));
+                tbl.setSchema(rsTables.getString("TABLE_SCHEM"));
+                tbl.setType(rsTables.getString("TABLE_TYPE"));
+                if (tbl.getDescription() == null || tbl.getDescription().trim().equals(""))
+                    tbl.setDescription(rsTables.getString("REMARKS"));
+                // add columns
+                ResultSet rsColumns = dbMetadata.getColumns(tbl.getCatalog(), tbl.getSchema(), tbl.getName(), null);
+                while (rsColumns.next()) {
+                    String colName = rsColumns.getString("COLUMN_NAME");
+                    ColumnDoc colDoc = findColumn(tbl.getColumns(), colName);
+                    colDoc.setType(rsColumns.getString("TYPE_NAME"));
+                    colDoc.setSize(rsColumns.getString("COLUMN_SIZE"));
+                    colDoc.setDecimalDigits(rsColumns.getString("DECIMAL_DIGITS"));
+                    colDoc.setNullable( "YES".equalsIgnoreCase(rsColumns.getString("IS_NULLABLE")) );
+                    colDoc.setDefaultValue(rsColumns.getString("COLUMN_DEF"));
+                    if (colDoc.getDescription() == null)
+                        colDoc.setDescription(rsColumns.getString("REMARKS"));
 
-            } // while columns
-            rsColumns.close();
+                } // while columns
+                rsColumns.close();
+            } // endif not excluded
         } // while tables
         rsTables.close();
 

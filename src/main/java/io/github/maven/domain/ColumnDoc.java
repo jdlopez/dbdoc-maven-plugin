@@ -5,8 +5,9 @@ public class ColumnDoc {
     private String description;
     private String type;
     private String size;
+    private String decimalDigits;
     private Boolean nullable;
-    private String constraints;
+    private String defaultValue;
 
     public String getName() {
         return name;
@@ -40,6 +41,14 @@ public class ColumnDoc {
         this.size = size;
     }
 
+    public String getDecimalDigits() {
+        return decimalDigits;
+    }
+
+    public void setDecimalDigits(String decimalDigits) {
+        this.decimalDigits = decimalDigits;
+    }
+
     public Boolean getNullable() {
         return nullable;
     }
@@ -48,11 +57,11 @@ public class ColumnDoc {
         this.nullable = nullable;
     }
 
-    public String getConstraints() {
-        return constraints;
+    public String getDefaultValue() {
+        return defaultValue;
     }
 
-    public void setConstraints(String constraints) {
-        this.constraints = constraints;
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 }

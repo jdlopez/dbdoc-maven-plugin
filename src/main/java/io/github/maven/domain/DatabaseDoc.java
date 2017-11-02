@@ -2,13 +2,18 @@ package io.github.maven.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Database documentation model. Contains all documented data. User documentation in 'description' attribute
+ */
 public class DatabaseDoc {
 
     private List<TableDoc> tables = new ArrayList<TableDoc>();
     private List<GroupDoc> groups = new ArrayList<GroupDoc>();
     private String name;
     private String description;
+    private List<Map<String, Object>> queryResult;
 
     public List<TableDoc> getTables() {
         return tables;
@@ -40,5 +45,13 @@ public class DatabaseDoc {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<Map<String, Object>> getQueryResult() {
+        return queryResult;
+    }
+
+    public void setQueryResult(List<Map<String, Object>> queryResult) {
+        this.queryResult = queryResult;
     }
 }

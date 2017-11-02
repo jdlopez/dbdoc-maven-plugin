@@ -17,11 +17,11 @@ Groups:
 <strong>Columns:</strong>
 <table>
     <thead>
-    <tr><th>name</th><th>type</th><th>size</th><th>nullable</th><th>constraints</th><th>description</th></tr>
+    <tr><th>name</th><th>type</th><th>size</th><th>decimal digits</th><th>nullable</th><th>default</th><th>description</th></tr>
     </thead>
     <tbody>
     {{#columns}}
-    <tr><td>{{name}}</td><td>{{type}}</td><td>{{size}}</td><td>{{nullable}}</td><td>{{constraints}}</td><td>{{description}}</td></tr>
+    <tr><td>{{name}}</td><td>{{type}}</td><td>{{size}}</td><td>{{decimalDigits}}</td><td>{{nullable}}</td><td>{{defaultValue}}</td><td>{{description}}</td></tr>
     {{/columns}}
     </tbody>
 </table>
