@@ -40,8 +40,7 @@ import java.util.Map;
  * Goal which creates dbdoc files
  */
 @Mojo( name = "dbdoc", defaultPhase = LifecyclePhase.SITE )
-public class DbDoc extends AbstractMojo
-{
+public class DbDoc extends AbstractMojo {
     /** Output dir for documentation*/
     @Parameter( defaultValue = "${project.build.directory}/site", property = "outputDir", required = true )
     private File outputDirectory;
@@ -197,8 +196,12 @@ public class DbDoc extends AbstractMojo
                 tbl.setCatalog(rsTables.getString("TABLE_CAT"));
                 tbl.setSchema(rsTables.getString("TABLE_SCHEM"));
                 tbl.setType(rsTables.getString("TABLE_TYPE"));
-                if (tbl.getDescription() == null || tbl.getDescription().trim().equals(""))
+                tbl.setDeleted(false);
+                if (tbl.getDescription() == null || tbl.getDescription().trim().equals("")) {
                     tbl.setDescription(rsTables.getString("REMARKS"));
+                    if (tbl.getDescription() == null)
+                        tbl.setDescription(documentation.getDefaults().get(tableName));
+                }
                 // add columns
                 ResultSet rsColumns = dbMetadata.getColumns(tbl.getCatalog(), tbl.getSchema(), tbl.getName(), null);
                 while (rsColumns.next()) {
@@ -209,14 +212,31 @@ public class DbDoc extends AbstractMojo
                     colDoc.setDecimalDigits(rsColumns.getString("DECIMAL_DIGITS"));
                     colDoc.setNullable( "YES".equalsIgnoreCase(rsColumns.getString("IS_NULLABLE")) );
                     colDoc.setDefaultValue(rsColumns.getString("COLUMN_DEF"));
-                    if (colDoc.getDescription() == null)
+                    colDoc.setDeleted(false);
+                    if (colDoc.getDescription() == null) {
                         colDoc.setDescription(rsColumns.getString("REMARKS"));
+                        if (colDoc.getDescription() == null)
+                            colDoc.setDescription(documentation.getDefaults().get(colName));
+                    }
 
                 } // while columns
                 rsColumns.close();
             } // endif not excluded
         } // while tables
         rsTables.close();
+        // change sense of deletion flag: null values are actually deleted table/column(s)
+        for (TableDoc t: documentation.getTables()) {
+            if (t.getDeleted() == null)
+                t.setDeleted(true);
+            else if (t.getDeleted().equals(Boolean.FALSE))
+                t.setDeleted(null); // clean non-deleted (too verbose)
+            for (ColumnDoc colDoc: t.getColumns()) {
+                if (colDoc.getDeleted() == null)
+                    colDoc.setDeleted(true);
+                else if (colDoc.getDeleted().equals(Boolean.FALSE))
+                    colDoc.setDeleted(null);  // clean non-deleted (too verbose)
+            } // for cols
+        } // for tables
 
     }
 

@@ -10,6 +10,7 @@ public class TableDoc {
     private String catalog;
     private String schema;
     private String type;
+    private Boolean deleted; // column deleted from table if null -> not deleted
     // ...
     private List<ColumnDoc> columns = new ArrayList<ColumnDoc>();
 
@@ -61,4 +62,11 @@ public class TableDoc {
         this.type = type;
     }
 
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
 }

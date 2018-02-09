@@ -8,6 +8,7 @@ public class ColumnDoc {
     private String decimalDigits;
     private Boolean nullable;
     private String defaultValue;
+    private Boolean deleted; // column deleted from table if null -> not deleted
 
     public String getName() {
         return name;
@@ -63,5 +64,13 @@ public class ColumnDoc {
 
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 }

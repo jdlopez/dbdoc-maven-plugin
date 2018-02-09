@@ -14,6 +14,7 @@ public class DatabaseDoc {
     private String name;
     private String description;
     private List<Map<String, Object>> queryResult;
+    private Map<String, String> defaults;
 
     public List<TableDoc> getTables() {
         return tables;
@@ -53,5 +54,13 @@ public class DatabaseDoc {
 
     public void setQueryResult(List<Map<String, Object>> queryResult) {
         this.queryResult = queryResult;
+    }
+
+    public Map<String, String> getDefaults() {
+        return defaults;
+    }
+
+    public void setDefaults(Map<String, String> defaults) {
+        this.defaults = defaults;
     }
 }
