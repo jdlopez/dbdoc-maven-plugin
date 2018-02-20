@@ -13,5 +13,4 @@ Add some examples
 
 Usefull guides to upload artifact to central or github:
 http://central.sonatype.org/pages/ossrh-guide.html
-https://maven.apache.org/plugin-developers/cookbook/attach-source-javadoc-artifacts.html
 https://github.com/github/maven-plugins#readme

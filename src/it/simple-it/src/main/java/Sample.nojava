@@ -1,0 +1,5 @@
+This is an example. No need to have .java extension
+
+prop.getProperty("some-config-entry");
+
+prop.getProperty("another-config-entry");

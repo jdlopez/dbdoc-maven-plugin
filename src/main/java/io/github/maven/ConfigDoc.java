@@ -6,6 +6,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import io.github.maven.domain.ConfigValuesDoc;
+import io.github.maven.domain.PropertyValueDoc;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -127,8 +128,12 @@ public class ConfigDoc extends AbstractMojo {
                 int idxStart = line.indexOf(pref);
                 if (idxStart > -1) { // found config entry!
                     getLog().debug("Found pattern: " + pref);
-                    int idxEnd = line.indexOf(suffixPatterns[i], idxStart + 1);
-                    String configEntry = line.substring(idxStart + pref.length(), idxEnd);
+                    int idxEnd = line.indexOf(suffixPatterns[i], idxStart + pref.length() + 1);
+                    if (idxEnd > -1) {
+                        String configEntry = line.substring(idxStart + pref.length(), idxEnd);
+                        if (!documentation.getValuesSet().containsKey(configEntry))
+                            documentation.getValuesSet().put(configEntry, new PropertyValueDoc(configEntry));
+                    }
                 }
             } // end for prefix
         } // end while lines
