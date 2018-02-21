@@ -4,13 +4,13 @@
 
   <groupId>io.github.jdlopez</groupId>
   <artifactId>dbdoc-maven-plugin</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <packaging>maven-plugin</packaging>
 
   <name>dbdoc Maven Plugin</name>
   <description>Database documentation maven plugin</description>
-
   <url>https://github.com/jdlopez/dbdoc-maven-plugin</url>
+
   <licenses>
     <license>
       <name>MIT License</name>
@@ -23,6 +23,8 @@
     <developer>
       <name>JD lopez</name>
       <url>https://github.com/jdlopez</url>
+      <organization>MySelf</organization>
+      <organizationUrl>https://github.com/jdlopez</organizationUrl>
     </developer>
   </developers>
 
@@ -132,6 +134,20 @@
              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
              <autoReleaseAfterClose>false</autoReleaseAfterClose>
           </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+                <execution>
+                    <id>sign-artifacts</id>
+                    <phase>verify</phase>
+                    <goals>
+                        <goal>sign</goal>
+                    </goals>
+                </execution>
+            </executions>
         </plugin>
     </plugins>
   </build>
