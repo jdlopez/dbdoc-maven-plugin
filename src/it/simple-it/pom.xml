@@ -16,9 +16,6 @@
         <!-- database config (local) -->
         <jdbc.driver>org.hsqldb.jdbc.JDBCDriver</jdbc.driver>
         <jdbc.url>jdbc:hsqldb:file:${basedir}/target/data/sampledb;shutdown=true</jdbc.url>
-        <!--
-        <jdbc.url>jdbc:hsqldb:mem:mymemdb</jdbc.url>
-        -->
         <jdbc.user>SA</jdbc.user>
         <jdbc.password>a</jdbc.password>
 
