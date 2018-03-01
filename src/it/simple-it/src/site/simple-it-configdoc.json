@@ -1,0 +1,17 @@
+{
+  "title" : "Some cool title",
+  "description" : null,
+  "values" : [ {
+    "entryName" : "fake-config-entry or false positive",
+    "description" : null,
+    "unused" : true
+  }, {
+    "entryName" : "another-config-entry",
+    "description" : null,
+    "unused" : null
+  }, {
+    "entryName" : "some-config-entry",
+    "description" : null,
+    "unused" : null
+  } ]
+}

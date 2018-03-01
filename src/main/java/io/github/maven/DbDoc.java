@@ -1,6 +1,5 @@
 package io.github.maven;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -20,17 +19,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,7 +83,7 @@ public class DbDoc extends AbstractMojo {
             // //////////////////////////
             // getting connection
             getLog().info("Getting jdbc connection");
-            //DriverManager.registerDriver();
+            DriverManager.registerDriver((Driver) Class.forName(jdbcDriver).newInstance());
             Connection connection = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPass);
             DatabaseMetaData dbMetadata = connection.getMetaData();
             // get name
@@ -141,6 +139,8 @@ public class DbDoc extends AbstractMojo {
         } catch (SQLException e) {
             throw new MojoExecutionException("Reading jdbc database: " +
                     jdbcDriver + " " + jdbcUrl, e);
+        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            throw new MojoExecutionException("Registering jdbc driver: " + jdbcDriver, e);
         }
     }
 

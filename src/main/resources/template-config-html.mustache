@@ -4,7 +4,9 @@
 <p>{{description}}</p>
 <ul>
 {{#values}}
+    {{^unused}}
     <li><strong>{{entryName}}:</strong> {{description}}</li>
+    {{/unused}}
 {{/values}}
 </ul>
 </body>

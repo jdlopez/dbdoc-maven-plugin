@@ -1,50 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>io.github.maven.it</groupId>
-  <artifactId>simple-it</artifactId>
-  <version>1.0-SNAPSHOT</version>
+    <groupId>io.github.maven.it</groupId>
+    <artifactId>simple-it</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
-  <description>A simple IT verifying the basic use case.</description>
+    <description>A simple IT verifying the basic use case.</description>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- database config (local) -->
+        <jdbc.driver>org.hsqldb.jdbc.JDBCDriver</jdbc.driver>
+        <jdbc.url>jdbc:hsqldb:file:${basedir}/target/data/sampledb;shutdown=true</jdbc.url>
+        <!--
+        <jdbc.url>jdbc:hsqldb:mem:mymemdb</jdbc.url>
+        -->
+        <jdbc.user>SA</jdbc.user>
+        <jdbc.password>a</jdbc.password>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>io.github.jdlopez</groupId>
-        <artifactId>dbdoc-maven-plugin</artifactId>
-        <version>1.1-SNAPSHOT</version>
-          <configuration>
-              <!--<jdbcDriver>${database.driver}</jdbcDriver>-->
-              <jdbcUrl>${database.url}</jdbcUrl>
-              <jdbcUser>${database.user}</jdbcUser>
-              <jdbcPass>${database.password}</jdbcPass>
-          </configuration>
-          <!-- add jdbc driver depends -->
-        <executions>
-          <execution>
-            <id>dbdoc</id>
-            <phase>site</phase>
-            <goals>
-              <goal>dbdoc</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>dbconfig</id>
-            <phase>site</phase>
-            <goals>
-              <goal>configdoc</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- create test database -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <version>1.5</version>
+                <dependencies>
+                    <!-- specify the dependent JDBC driver here -->
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>2.4.0</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <driver>${jdbc.driver}</driver>
+                    <url>${jdbc.url}</url>
+                    <username>${jdbc.user}</username>
+                    <password>${jdbc.password}</password>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <srcFiles>
+                                <srcFile>${basedir}/src/main/resources/createdb.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.github.jdlopez</groupId>
+                <artifactId>dbdoc-maven-plugin</artifactId>
+                <version>1.2-SNAPSHOT</version>
+                <configuration>
+                    <jdbcDriver>${jdbc.driver}</jdbcDriver>
+                    <jdbcUrl>${jdbc.url}</jdbcUrl>
+                    <jdbcUser>${jdbc.user}</jdbcUser>
+                    <jdbcPass>${jdbc.password}</jdbcPass>
+                    <cfgOverwriteSource>true</cfgOverwriteSource>
+                </configuration>
+                <!-- add jdbc driver depends -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hsqldb</groupId>
+                        <artifactId>hsqldb</artifactId>
+                        <version>2.4.0</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>dbdoc</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>dbdoc</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>dbconfig</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>configdoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -6,6 +6,7 @@ Builds documentation from jdbc source.
 * Uses mustache templates. [Basic HTML template](src/main/resources/template-html.mustache)
 
 Usage example [here](src/it/simple-it/pom.xml)
+Test database with [hsqldb](http://hsqldb.org/)
 
 TODO:
 

@@ -4,7 +4,7 @@
 
   <groupId>io.github.jdlopez</groupId>
   <artifactId>dbdoc-maven-plugin</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
   <packaging>maven-plugin</packaging>
 
   <name>dbdoc Maven Plugin</name>
@@ -142,7 +142,7 @@
             <executions>
                 <execution>
                     <id>sign-artifacts</id>
-                    <phase>verify</phase>
+                    <phase>deploy</phase>
                     <goals>
                         <goal>sign</goal>
                     </goals>

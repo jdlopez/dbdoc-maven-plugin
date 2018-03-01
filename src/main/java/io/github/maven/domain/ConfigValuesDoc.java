@@ -2,6 +2,7 @@ package io.github.maven.domain;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +16,12 @@ public class ConfigValuesDoc {
     @JsonGetter
     public Collection<PropertyValueDoc> getValues() {
         return valuesSet.values();
+    }
+    @JsonSetter
+    public void setValues(Collection<PropertyValueDoc> values) {
+        for (PropertyValueDoc p: values) {
+            valuesSet.put(p.getEntryName(), p);
+        }
     }
 
     public String getTitle() {

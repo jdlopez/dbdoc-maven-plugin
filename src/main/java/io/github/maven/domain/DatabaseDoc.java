@@ -1,6 +1,8 @@
 package io.github.maven.domain;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +15,8 @@ public class DatabaseDoc {
     private List<GroupDoc> groups = new ArrayList<GroupDoc>();
     private String name;
     private String description;
-    private List<Map<String, Object>> queryResult;
-    private Map<String, String> defaults;
+    private List<Map<String, Object>> queryResult = Collections.emptyList();
+    private Map<String, String> defaults = new HashMap<>();
 
     public List<TableDoc> getTables() {
         return tables;

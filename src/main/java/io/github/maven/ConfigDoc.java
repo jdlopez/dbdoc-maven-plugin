@@ -29,23 +29,23 @@ import java.util.List;
 @Mojo( name = "configdoc", defaultPhase = LifecyclePhase.SITE )
 public class ConfigDoc extends AbstractMojo {
     /** Output dir for documentation*/
-    @Parameter( defaultValue = "${project.build.directory}/site", property = "outputDir", required = true )
-    private File outputDirectory;
+    @Parameter( defaultValue = "${project.build.directory}/site", property = "cfgOutputDirectory", required = true )
+    private File cfgOutputDirectory;
     /** Input source file. Created if not exists */
-    @Parameter( defaultValue = "${project.basedir}/src/site/${project.artifactId}-configdoc.json", property = "sourceFile", required = false )
-    private File sourceFile;
+    @Parameter( defaultValue = "${project.basedir}/src/site/${project.artifactId}-configdoc.json", property = "cfgSourceFile", required = false )
+    private File cfgSourceFile;
     /** Input source directory */
-    @Parameter( defaultValue = "${project.basedir}/src", property = "sourceScanDirectory", required = false )
-    private File sourceScanDirectory;
+    @Parameter( defaultValue = "${project.basedir}/src", property = "cfgSourceScanDirectory", required = false )
+    private File cfgSourceScanDirectory;
     /** Pattern to search. Use asterix to point variable name */
-    @Parameter( defaultValue = ".getProperty(\"*\")", property = "patterns", required = false )
-    private List<String> patterns;
-    @Parameter( defaultValue = "false", property = "overwriteSource", required = false )
-    private boolean overwriteSource;
-    @Parameter( property = "documentationTemplate", required = false )
-    private File documentationTemplate;
-    @Parameter( property = "outputDocFile", required = false )
-    private File outputDocFile = null;
+    @Parameter( defaultValue = ".getProperty(\"*\")", property = "cfgEntryPatterns", required = false )
+    private List<String> cfgEntryPatterns;
+    @Parameter( defaultValue = "false", property = "cfgOverwriteSource", required = false )
+    private boolean cfgOverwriteSource;
+    @Parameter( property = "cfgDocumentationTemplate", required = false )
+    private File cfgDocumentationTemplate;
+    @Parameter( property = "cfgOutputDocFile", required = false )
+    private File cfgOutputDocFile = null;
     // calculated vars
     private String[] prefixPatterns;
     private String[] suffixPatterns;
@@ -56,30 +56,30 @@ public class ConfigDoc extends AbstractMojo {
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         ConfigValuesDoc documentation = null;
         try {
-            prefixPatterns = new String[patterns.size()];
-            suffixPatterns = new String[patterns.size()];
+            prefixPatterns = new String[cfgEntryPatterns.size()];
+            suffixPatterns = new String[cfgEntryPatterns.size()];
             // * used as wildcard :-o
-            for (int i = 0; i < patterns.size(); i++) {
-                int idxPattern = patterns.get(i).indexOf("*");
-                prefixPatterns[i] = patterns.get(i).substring(0, idxPattern);
-                suffixPatterns[i] = patterns.get(i).substring(idxPattern + 1);
+            for (int i = 0; i < cfgEntryPatterns.size(); i++) {
+                int idxPattern = cfgEntryPatterns.get(i).indexOf("*");
+                prefixPatterns[i] = cfgEntryPatterns.get(i).substring(0, idxPattern);
+                suffixPatterns[i] = cfgEntryPatterns.get(i).substring(idxPattern + 1);
             } // endfor search for pattern suffix and prefix
             // //////////////////////////
             // read source
-            if (sourceFile != null && sourceFile.exists()) {
-                documentation = om.readValue(sourceFile, ConfigValuesDoc.class);
+            if (cfgSourceFile != null && cfgSourceFile.exists()) {
+                documentation = om.readValue(cfgSourceFile, ConfigValuesDoc.class);
             } else {
                 documentation = new ConfigValuesDoc();
             } // endif source
-            scanDirectory(documentation, sourceScanDirectory);
+            scanDirectory(documentation, cfgSourceScanDirectory);
             // //////////////////////////
             // write source
             File outSourceFile;
-            if (overwriteSource) {
+            if (cfgOverwriteSource) {
                 getLog().info("Overwriting source with new meta-data");
-                outSourceFile = sourceFile;
+                outSourceFile = cfgSourceFile;
             } else {
-                outSourceFile = new File(outputDirectory, "source-configdoc.json");
+                outSourceFile = new File(cfgOutputDirectory, "source-configdoc.json");
             }
             // keeps nulls so its easy to fulfill doc
             //om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -89,19 +89,19 @@ public class ConfigDoc extends AbstractMojo {
             // generate doc
             getLog().info("Generating documentation file");
             Reader templateReader = null;
-            if (documentationTemplate != null)
-                templateReader = new FileReader(documentationTemplate);
+            if (cfgDocumentationTemplate != null)
+                templateReader = new FileReader(cfgDocumentationTemplate);
             else
                 templateReader = new InputStreamReader(this.getClass().getResourceAsStream("/template-config-html.mustache"));
             MustacheFactory mf = new DefaultMustacheFactory();
             Mustache mustache = mf.compile(templateReader, "template");
-            if (outputDocFile == null)
-                outputDocFile = new File(outputDirectory, "configuration.html");
-            mustache.execute(new FileWriter(outputDocFile), documentation).flush();
+            if (cfgOutputDocFile == null)
+                cfgOutputDocFile = new File(cfgOutputDirectory, "configuration.html");
+            mustache.execute(new FileWriter(cfgOutputDocFile), documentation).flush();
             getLog().info("Done");
 
         } catch (IOException e) {
-            throw new MojoExecutionException("Reading source file: " + sourceFile, e);
+            throw new MojoExecutionException("Reading source file: " + cfgSourceFile, e);
         }
     }
 
