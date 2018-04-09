@@ -1,0 +1,86 @@
+{
+  "tables" : [ {
+    "name" : "FIRST_TABLE",
+    "description" : null,
+    "catalog" : "PUBLIC",
+    "schema" : "PUBLIC",
+    "type" : "TABLE",
+    "deleted" : null,
+    "columns" : [ {
+      "name" : "SOMEKEY",
+      "description" : null,
+      "type" : "INTEGER",
+      "size" : "32",
+      "decimalDigits" : "0",
+      "nullable" : true,
+      "defaultValue" : null,
+      "deleted" : null
+    }, {
+      "name" : "ONE_ATTRIBUTE",
+      "description" : null,
+      "type" : "VARCHAR",
+      "size" : "20",
+      "decimalDigits" : null,
+      "nullable" : false,
+      "defaultValue" : null,
+      "deleted" : null
+    }, {
+      "name" : "SND_ATTRIB",
+      "description" : null,
+      "type" : "DATE",
+      "size" : "10",
+      "decimalDigits" : null,
+      "nullable" : true,
+      "defaultValue" : null,
+      "deleted" : null
+    }, {
+      "name" : "NON_EXIST_ATTRIB",
+      "description" : "some sample data will be marked as deleted",
+      "type" : "DATE",
+      "size" : "10",
+      "decimalDigits" : null,
+      "nullable" : true,
+      "defaultValue" : null
+    } ]
+  }, {
+    "name" : "SECOND_TABLE",
+    "description" : null,
+    "catalog" : "PUBLIC",
+    "schema" : "PUBLIC",
+    "type" : "TABLE",
+    "deleted" : null,
+    "columns" : [ {
+      "name" : "SNDKEY",
+      "description" : null,
+      "type" : "VARCHAR",
+      "size" : "5",
+      "decimalDigits" : null,
+      "nullable" : true,
+      "defaultValue" : null,
+      "deleted" : null
+    }, {
+      "name" : "DISPOSABLE_DATE",
+      "description" : null,
+      "type" : "DATE",
+      "size" : "10",
+      "decimalDigits" : null,
+      "nullable" : true,
+      "defaultValue" : null,
+      "deleted" : null
+    }, {
+      "name" : "A_NUMBER",
+      "description" : null,
+      "type" : "DECIMAL",
+      "size" : "10",
+      "decimalDigits" : "2",
+      "nullable" : false,
+      "defaultValue" : null,
+      "deleted" : null
+    } ]
+  } ],
+  "groups" : [ ],
+  "name" : "HSQL Database Engine",
+  "description" : "Description sample",
+  "queryResult" : [ ],
+  "defaults" : { }
+}

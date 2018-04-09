@@ -107,7 +107,7 @@ public class DbDoc extends AbstractMojo {
                 getLog().info("Overwriting source with new meta-data");
                 outSourceFile = sourceFile;
             } else {
-                outSourceFile = new File(outputDirectory, "source-tables.json");
+                outSourceFile = new File(outputDirectory, "simple-it-dbdoc.json");
             }
             // keeps nulls so its easy to fulfill doc
             //om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -172,6 +172,12 @@ public class DbDoc extends AbstractMojo {
     }
 
     private void buildSchemaDocumentation(DatabaseMetaData dbMetadata, DatabaseDoc documentation, String schemaName) throws SQLException {
+        // mark all as deleted, will set false if found
+        for (TableDoc t: documentation.getTables()) {
+            t.setDeleted(true);
+            for (ColumnDoc c: t.getColumns())
+                c.setDeleted(true);
+        } // end for set deleted
         ResultSet rsTables = dbMetadata.getTables(null, schemaName, null, new String[]{"TABLE"});
         while (rsTables.next()) {
             String tableName = rsTables.getString("TABLE_NAME");

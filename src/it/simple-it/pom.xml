@@ -59,13 +59,14 @@
             <plugin>
                 <groupId>io.github.jdlopez</groupId>
                 <artifactId>dbdoc-maven-plugin</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <version>1.3-SNAPSHOT</version>
                 <configuration>
                     <jdbcDriver>${jdbc.driver}</jdbcDriver>
                     <jdbcUrl>${jdbc.url}</jdbcUrl>
                     <jdbcUser>${jdbc.user}</jdbcUser>
                     <jdbcPass>${jdbc.password}</jdbcPass>
                     <cfgOverwriteSource>true</cfgOverwriteSource>
+                    <overwriteSource>false</overwriteSource>
                 </configuration>
                 <!-- add jdbc driver depends -->
                 <dependencies>

@@ -5,6 +5,7 @@ A maven plugin that builds documentation from jdbc source. Now (1.2) added confi
 * Uses JSON file to add comments and extra documentation for tables or columns.
 * Uses mustache templates. [Basic HTML template](src/main/resources/template-html.mustache)
 * v1.2 Config entries documentation. Very simple search for patterns in files (getProperty ... configurable)
+* v1.3 Minor fix (deleted tables and columns)
 
 Usage example [here](src/it/simple-it/pom.xml)
 
